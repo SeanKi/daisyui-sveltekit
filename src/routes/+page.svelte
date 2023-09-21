@@ -10,6 +10,8 @@
     let dstMoney = "0";
     let exchangeData = null;
 
+    let tid = null;
+
     onMount(()=>getCurrency());
     function getCurrency() {
             // 웹 서비스 요청 (기본 JavaScript)
@@ -23,15 +25,21 @@
             dstMoney = parseFloat(srcMoney) * exchangeData[dstCurrency];
         }
     }
-//$: srcMoney = Number(srcMoney) + '';
-    function handleClick(c) {
-        srcMoney += c;
-        setTimeout(function() {
+    function delayCalc() {
+        if (tid) {
+            clearTimeout(tid);
+        }
+        tid = setTimeout(function() {
         // 1초 후 실행할 코드를 여기에 작성합니다.
             if (!srcMoney.endsWith('.'))
                 srcMoney = parseFloat(srcMoney) + '';
             handleClickCalc();
         }, 1000);
+    }
+//$: srcMoney = Number(srcMoney) + '';
+    function handleClick(c) {
+        srcMoney += c;
+        delayCalc();
     }
     function handleClickDelete() {
         srcMoney = srcMoney.slice(0,-1)
@@ -86,7 +94,7 @@
         <option value="usd">미국 달러</option>
         <option value="krw">대한민국 원</option>
         </select>
-        <input bind:value={srcMoney} type="text" class="w-3/4 ml-2 border border-gray-300 p-2 rounded" placeholder="숫자를 입력하세요">
+        <input bind:value={srcMoney} type="text" on:input={delayCalc} class="w-3/4 ml-2 border border-gray-300 p-2 rounded" placeholder="숫자를 입력하세요">
     </div>
     <div class="mb-4 flex items-center">
         <select
@@ -101,8 +109,10 @@
         <input bind:value={dstMoney} type="text" class="w-3/4 ml-2 border border-gray-300 p-2 rounded" placeholder="숫자를 입력하세요">
     </div>
     <div class="grid grid-cols-4 gap-2 p-4">
+    <button class="btn btn-primary col-span-2" on:click={delayCalc}>Calc</button>
+    <button class="btn btn-primary col-span-2" on:click={() => handleClick('7')}></button>
+ 
     <button class="btn btn-primary" on:click={() => handleClick('7')}>7</button>
-    
     <button class="btn btn-primary" on:click={() => handleClick('8')}>8</button>
     <button class="btn btn-primary" on:click={() => handleClick('9')}>9</button>
     <button class="btn btn-primary" on:click={() => handleClickDelete()}>&lt;</button>

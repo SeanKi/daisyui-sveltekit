@@ -14,5 +14,8 @@
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.9"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "svelte-routing": "^2.4.0"
+  }
 }

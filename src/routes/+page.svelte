@@ -17,12 +17,16 @@
             // 웹 서비스 요청 (기본 JavaScript)
         fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${currentCurrency}/${dstCurrency}.min.json`)
         .then(response => response.json())
-        .then(data => exchangeData = data)
+        .then(data => {exchangeData = data; delayCalc();})
         .catch(error => console.error('Error:', error));
     }
+    function numberWithCommas(x) {
+    // 소수점 이하 자릿수와 천 단위 구분 컴마 추가
+    return x.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
     function handleClickCalc() {
         if (exchangeData) {
-            dstMoney = parseFloat(srcMoney) * exchangeData[dstCurrency];
+            dstMoney = numberWithCommas(parseFloat(srcMoney) * exchangeData[dstCurrency]);
         }
     }
     function delayCalc() {
@@ -31,6 +35,8 @@
         }
         tid = setTimeout(function() {
         // 1초 후 실행할 코드를 여기에 작성합니다.
+            if (srcMoney === '')
+                srcMoney ='0';
             if (!srcMoney.endsWith('.'))
                 srcMoney = parseFloat(srcMoney) + '';
             handleClickCalc();
@@ -38,55 +44,33 @@
     }
 //$: srcMoney = Number(srcMoney) + '';
     function handleClick(c) {
-        srcMoney += c;
+        if (c !== '' && srcMoney === '0')
+            srcMoney = c;
+        else
+            srcMoney += c;
         delayCalc();
     }
     function handleClickDelete() {
         srcMoney = srcMoney.slice(0,-1)
+        delayCalc();
     }
   function handleSelectChange(event) {
     //currentCurrency = event.detail.value;
     console.log('cur' + currentCurrency);
     console.log('dst' + dstCurrency);
     getCurrency();
+    
   }
   function handleClickClear() {
       srcMoney = "0";
+      delayCalc();
   }
-
-    function clearInputs() {
-        input1 = '';
-        input2 = '';
-        operator = '';
-        result = '';
-    }
-
-    function calculate() {
-        const num1 = parseFloat(input1);
-        const num2 = parseFloat(input2);
-
-        switch (operator) {
-            case 'a':
-                result = num1 + num2;
-                break;
-            case 'b':
-                result = num1 - num2;
-                break;
-            case 'c':
-                result = num1 * num2;
-                break;
-            case '=':
-                result = num1 / num2;
-                break;
-            default:
-                result = '';
-        }
-    }
+    
 </script>
 <div class="bg-white p-4 rounded-lg shadow-md w-80">
-    <div class="mb-4 flex items-center">
+  <div class="mb-4 flex items-center">
         <select
-        class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+        class="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
         bind:value={currentCurrency}
         on:change={handleSelectChange}
         >
@@ -98,7 +82,7 @@
     </div>
     <div class="mb-4 flex items-center">
         <select
-        class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+        class="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
         bind:value={dstCurrency}
         on:change={handleSelectChange}
         >
@@ -106,11 +90,11 @@
         <option value="usd">미국 달러</option>
         <option value="krw">대한민국 원</option>
         </select>
-        <input bind:value={dstMoney} type="text" class="w-3/4 ml-2 border border-gray-300 p-2 rounded" placeholder="숫자를 입력하세요">
+        <input bind:value={dstMoney} type="text" class="w-3/4 ml-2 border border-gray-300 p-2 rounded" placeholder="숫자를 입력하세요" readonly>
     </div>
     <div class="grid grid-cols-4 gap-2 p-4">
     <button class="btn btn-primary col-span-2" on:click={delayCalc}>Calc</button>
-    <button class="btn btn-primary col-span-2" on:click={() => handleClick('7')}></button>
+    <button class="btn btn-primary col-span-2" ></button>
  
     <button class="btn btn-primary" on:click={() => handleClick('7')}>7</button>
     <button class="btn btn-primary" on:click={() => handleClick('8')}>8</button>
